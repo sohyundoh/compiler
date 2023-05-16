@@ -13,6 +13,8 @@
 "while"		return(TWHILE);
 "=="		return(TEQUAL);
 "!="		return(TNOTEQU);
+">"		return(TLESS);
+"<"		return(TGREAT);
 "<="		return(TLESSE);
 ">="		return(TGREATE);
 "&&"		return(TAND);

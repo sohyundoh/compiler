@@ -16,6 +16,7 @@
 "<="		return(TLESSE);
 ">="		return(TGREATE);
 "&&"		return(TAND);
+"!"		return(TNOT);
 "||"		return(TOR);
 "++"		return(TINC);
 "--"		return(TDEC);
@@ -24,12 +25,33 @@
 "*="		return(TMULASSIGN);
 "/="		return(TDIVASSIGN);
 "%="		return(TMODASSIGN);
+"("		return(TBRASL);
+")" 		return(TBRASR);
+"{" 		return(TBRAML);
+"}" 		return(TBRAMR);
+"["		return(TBRALL);
+"]"		return(TBRALR);
+","		return(TCOMMA);
+";"		return(TSEMICOLON)
 [A-Za-z_][A-Za-z0-9_]*		return(TIDENT);
 [1-9][0-9]*|0([0-7]+|(x|X)[0-9A-Fa-f]*)?	return(TNUMBER);
+a-zA-Z_]([a-zA-Z_]|[0-9])* 		{
+				if(yyleng >= 11) return(TLONGIDERR);
+ 				else{
+					SymbolTable();
+				return(TIDENT);
+				}
+			    }
 "/*"([^*]|\*+[^*/])*\**"*"	;
 "//".*	;
 [ \t\n] ;
 .	return(yytext[0]);
+ 
+"+"		return(TADD);
+"-"		return(TSUB);
+"*"		return(TMUL);
+"/"		return(TDIV);
+"%"		return(TMOD);
 %%
 
 int yywrap() {

@@ -38,13 +38,15 @@
 [A-Za-z_][A-Za-z0-9_]*		return(TIDENT);
 [1-9][0-9]*|0([0-7]+|(x|X)[0-9A-Fa-f]*)?	return(TNUMBER);
 [0-9]+"."[0-9]+             return(TRNUMBER);
-a-zA-Z_]([a-zA-Z_]|[0-9])* 		{
-				if(yyleng >= 11) return(TLONGIDERR);
- 				else{
-					SymbolTable();
-				return(TIDENT);
-				}
-			    }
+[a-zA-Z_]([a-zA-Z_]|[0-9])*           {
+                            if(yyleng >= 11) return(TLONGIDERR);
+                            else{
+                                SymbolTable();
+                                return(TIDENT);
+                            }
+                        }
+[0-9]([0-9]|[a-zA-Z_])+ 	return(TSWDIGITERR);
+.               return(TILLSYMBOLERR);
 "/*"([^*]|\*+[^*/])*\**"*"	;
 "//".*	;
 [ \t\n] ;

@@ -34,8 +34,8 @@
 "["		return(TBRALL);
 "]"		return(TBRALR);
 ","		return(TCOMMA);
-":"		return(TCOLON)
-";"		return(TSEMICOLON)
+":"		return(TCOLON);
+";"		return(TSEMICOLON);
 [A-Za-z_][A-Za-z0-9_]*		return(TIDENT);
 [1-9][0-9]*|0([0-7]+|(x|X)[0-9A-Fa-f]*)?	return(TNUMBER);
 [0-9]+"."[0-9]+             return(TRNUMBER);

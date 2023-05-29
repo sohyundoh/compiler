@@ -1,0 +1,101 @@
+%{
+#include <stdio.h>
+#include <stdlib.h>
+#include "tn.h"
+#include "glob.h"
+
+extern ComputeHS(int nid, int nfree);
+extern LookupHS(int nid, int nfree);
+extern ADDHT(int hscode);
+extern PrintHStable();
+extern yyerror(char *s);
+
+int i;
+%}
+
+%s CMT
+
+%%
+"const"	return(TCONST);
+"else"	return(TELSE);
+"if"		return(TIF);
+"int"		return(TINT);
+"return"	return(TRETURN);
+"void"	return(TVOID);
+"while"	return(TWHILE);
+"+"		return(TPLUS);
+"-"		return(TMINUS);
+"*"		return(TMULTIPLY);
+"/"		return(TDIVIDE);
+"%"		return(TMOD);
+"="		return(TASSIGN);
+"=="		return(TEQUAL);
+"&&"		return(TAND);
+"||"		return(TOR);
+"++"		return(TINC);
+"--"		return(TDEC);
+"+="		return(TADDASSIGN);
+"-="		return(TSUBASSIGN);
+"*="		return(TMULASSIGN);
+"/="		return(TDIVASSIGN);
+"%="		return(TMODASSIGN);
+"("		return(TLPAREN);
+")"		return(TRPAREN);
+","		return(TCOMMA);
+";"		return(TSEMICOLON);
+"["		return(TLBRACKET);
+"]"		return(TRBRACKET);
+"{"		return(TLBRACE);
+"}"		return(TRBRACE);
+"!="		return(TNOTEQU);
+"<="		return(TLESSE);
+">="		return(TGREATE);
+">"		return(TLESS);
+"<"		return(TGREAT);
+
+[A-Za-z_][A-Za-z0-9_]* {
+			if(nextfree>=STsize){
+				printf("\tError>>\tOVERFLOW!\n");
+				PrintHStable();
+				exit(1);
+			}
+			nextid=nextfree;
+			nextfree+=(yyleng+1);
+			for(i=0;i<yyleng;i++)
+				ST[nextid+1]=yytext[i];
+			
+			ComputeHS(nextid,nextfree);
+	 		LookupHS(nextid,hashcode);
+		
+			if(!found){
+				ADDHT(hashcode);
+			}
+			else{
+				for(i=nextid;i<nextfree-1;i++){
+					ST[i]="\0";
+				}
+				nextfree=nextid;
+			}
+			return(TIDEN);
+	}
+
+
+
+
+
+
+
+
+
+
+
+[1-9][0-9]*|0([0-7]+|(x|X)[0-9A-Fa-f]*)?	return(TNUMBER);
+"/*"([^*]|\*+[^*/])*\**"*"	;
+"//".*	;
+[ \t\n] ;
+.	return(yytext[0]);
+%%
+
+int yywrap() {
+	return 1;
+}

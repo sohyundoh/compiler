@@ -61,8 +61,8 @@ function_def 		: function_header compound_st
 				look_tmp->type = 0;
 
 				yyerrok;
-				yyerror("wrong_funcdef") ;		/* error - wrong function definition */
-			}
+				printError(wrong_funcdef); /* error - wrong function definition */
+							}
 			;
 function_header 		: dcl_spec function_name formal_param
 			;

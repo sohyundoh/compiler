@@ -1,65 +1,95 @@
 %{
-/*lex source for Mini C*/
+#include <stdio.h>
+#include <stdlib.h>
 #include "tn.h"
+#include "glob.h"
 
+extern ComputeHS(int nid, int nfree);
+extern LookupHS(int nid, int nfree);
+extern ADDHT(int hscode);
+extern PrintHStable();
+extern yyerror(char *s);
+
+int i;
 %}
+
+%s CMT
+
 %%
-"const"		return(TCONST);
-"else"		return(TELSE);
-"if"		return(TIF);
-"int"		return(TINT);
-"return"	return(TRETURN);
-"void"		return(TVOID);
-"while"		return(TWHILE);
-"=="		return(TEQUAL);
-"!="		return(TNOTEQU);
-">"		return(TLESS);
-"<"		return(TGREAT);
-"<="		return(TLESSE);
-">="		return(TGREATE);
-"&&"		return(TAND);
-"!"		return(TNOT);
-"||"		return(TOR);
-"++"		return(TINC);
-"--"		return(TDEC);
-"+="		return(TADDASSIGN);
-"-="		return(TSUBASSIGN);
-"*="		return(TMULASSIGN);
-"/="		return(TDIVASSIGN);
-"%="		return(TMODASSIGN);
-"("		return(TBRASL);
-")" 		return(TBRASR);
-"{" 		return(TBRAML);
-"}" 		return(TBRAMR);
-"["		return(TBRALL);
-"]"		return(TBRALR);
-","		return(TCOMMA);
-":"		return(TCOLON);
-";"		return(TSEMICOLON);
-[A-Za-z_][A-Za-z0-9_]*		return(TIDENT);
-[1-9][0-9]*|0([0-7]+|(x|X)[0-9A-Fa-f]*)?	return(TNUMBER);
+"const"   return(TCONST);
+"else"   return(TELSE);
+"if"   return(TIF);
+"int"   return(TINT);
+"return"return(TRETURN);
+"void"   return(TVOID);
+"while"   return(TWHILE);
+"+"      return(TPLUS);
+"-"      return(TMINUS);
+"*"      return(TMULTIPLY);
+"/"      return(TDIVIDE);
+"%"      return(TMOD);
+"="      return(TASSIGN);
+"=="   return(TEQUAL);
+"&&"   return(TAND);
+"!"      return(TNOT);
+"||"   return(TOR);
+"++"   return(TINC);
+"--"   return(TDEC);
+"+="   return(TADDASSIGN);
+"-="   return(TSUBASSIGN);
+"*="    return(TMULASSIGN);
+"/="   return(TDIVASSIGN);
+"%="    return(TMODASSIGN);
+"("      return(TLPAREN);
+")"      return(TRPAREN);
+","      return(TCOMMA);
+";"      return(TSEMICOLON);
+"["      return(TLBRACKET);
+"]"      return(TRBRACKET);
+"{"      return(TLBRACE);
+"}"      return(TRBRACE);
+"!="   return(TNOTEQU);
+"<="   return(TLESSE);
+">="   return(TGREATE);
+">"      return(TLESS);
+"<"      return(TGREAT);
+
+[A-Za-z_][A-Za-z0-9_]* {
+         if(nextfree>=STsize){
+            printf("\tError>>\tOVERFLOW!\n");
+            PrintHStable();
+            exit(1);
+         }
+         nextid=nextfree;
+         nextfree+=(yyleng+1);
+         for(i=0;i<yyleng;i++)
+            ST[nextid+1]=yytext[i];
+         
+         ComputeHS(nextid,nextfree);
+          LookupHS(nextid,hashcode);
+      
+         if(!found){
+            ADDHT(hashcode);
+         }
+         else{
+            for(i=nextid;i<nextfree-1;i++){
+               ST[i]="\0";
+            }
+            nextfree=nextid;
+         }
+         return(TIDEN);
+   }    
+[0-9]([0-9]|[a-zA-Z_])+    return(TSWDIGITERR);
 [0-9]+"."[0-9]+             return(TRNUMBER);
-[a-zA-Z_]([a-zA-Z_]|[0-9])*           {
-                            if(yyleng >= 11) return(TLONGIDERR);
-                            else{
-                                SymbolTable();
-                                return(TIDENT);
-                            }
-                        }
-[0-9]([0-9]|[a-zA-Z_])+ 	return(TSWDIGITERR);
-.               return(TILLSYMBOLERR);
-"/*"([^*]|\*+[^*/])*\**"*"	;
-"//".*	;
-[ \t\n] ;
-.	return(yytext[0]);
- 
-"+"		return(TADD);
-"-"		return(TSUB);
-"*"		return(TMUL);
-"/"		return(TDIV);
-"%"		return(TMOD);
+[1-9][0-9]*|0([0-7]+|(x|X)[0-9A-Fa-f]*)?   return(TNUMBER);
+"/*"([^*]|\*+[^*/])*\**"*"   ;
+"//".*   ;
+[ \t] ;
+"\n" cLine++;
+.   return(TILLSYMBOLERR);
+.   return(yytext[0]);
 %%
 
 int yywrap() {
-	return 1;
+   return 1;
 }
